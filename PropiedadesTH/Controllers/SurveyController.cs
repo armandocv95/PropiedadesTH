@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PropiedadesApp.Data;
 using PropiedadesTH.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,52 +11,68 @@ namespace PropiedadesTH.Controllers
     [ApiController]
     public class SurveyController : ControllerBase
     {
-        private readonly MyContext _myContext;
+        private readonly PContext _myContext;
+
+        public SurveyController(PContext _myContext)
+        {
+            this._myContext = _myContext;
+        }
+
         // GET: api/<SurveyController>
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public IActionResult Get()
         {
-            var surveys = _myContext.Surveys.ToListAsync();
+            var surveys = _myContext.Surveys.ToList();
             return Ok(surveys);
         }
 
         // GET api/<SurveyController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public IActionResult GetById(int id)
         {
-            var survey = _myContext.Surveys.FirstAsync(c => c.id == id);
+            var survey = _myContext.Surveys.First(c => c.id == id);
             return Ok(survey);
         }
 
         // POST api/<SurveyController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Survey value)
+        public IActionResult Post([FromBody] SurveyView value)
         {
-            _myContext.Surveys.Add(value);
-            await _myContext.SaveChangesAsync();
+            Survey act = new Survey();
+            act.id = value.id;
+            act.answers = value.answers;
+            act.activity_id = value.activity_id;
+            act.created_at = value.created_at;
+            _myContext.Surveys.Add(act);
+            _myContext.SaveChanges();
             return Created($"get-by-id?id={value.id}", value);
         }
 
         // PUT api/<SurveyController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromBody] Survey value)
+        public IActionResult Put([FromBody] SurveyView value)
         {
-            _myContext.Surveys.Update(value);
-            await _myContext.SaveChangesAsync();
+            Survey act = new Survey();
+            act.id = value.id;
+            act.answers = value.answers;
+            act.activity_id = value.activity_id;
+            act.created_at = value.created_at;
+            _myContext.Surveys.Update(act);
+            _myContext.SaveChanges();
             return NoContent();
         }
 
         // DELETE api/<SurveyController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public IActionResult Delete(int id)
         {
-            var survey = await _myContext.Surveys.FindAsync(id);
-            if(survey == null)
+            var survey = _myContext.Surveys.Find(id);
+            if (survey == null)
             {
                 return NotFound();
             }
             _myContext.Surveys.Remove(survey);
-            await _myContext.SaveChangesAsync();
+            _myContext.SaveChanges();
             return NoContent();
         }
     }
